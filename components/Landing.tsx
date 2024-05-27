@@ -37,6 +37,17 @@ const EventBanner = () => {
           Sat. June 1st, 2024 | Pantaloon Building, KIIT Road | 4PM till
           midnight
         </p>
+        <p className='text-white'>
+            Developed by{' '}
+            <a
+              href='https://www.linkedin.com/in/iampeprah/'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-blue-400 hover:text-blue-300'
+            >
+              Peprah Obed Adjei
+            </a>
+          </p>
       </div>
     </div>
   );
