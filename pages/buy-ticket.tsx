@@ -1,6 +1,6 @@
-// pages/form.tsx
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const FormPage = () => {
   const [ticketType, setTicketType] = useState<string>('Lonely at the top');
@@ -14,6 +14,7 @@ const FormPage = () => {
     { name: string; email: string; phone: string }[]
   >([]);
   const [ticketNumber, setTicketNumber] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setTicketNumber(generateTicketNumber());
@@ -66,22 +67,26 @@ const FormPage = () => {
       return;
     }
 
+    setLoading(true);
+
     const formData = new FormData();
     formData.append('ticketNumber', ticketNumber);
     formData.append('ticketType', ticketType);
     formData.append('amount', amount.toString());
     formData.append('total', totalAmount.toString());
     formData.append('transactionScreenshot', transactionImage);
-    formData.append('personDetails', JSON.stringify(personDetails)); // Ensure this is a JSON string
+    formData.append('personDetails', JSON.stringify(personDetails));
 
     try {
-      const response = await fetch('https://booking-back-end.vercel.app/submit/', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        'https://booking-back-end.vercel.app/submit/',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       if (response.ok) {
-        console.log(response);
         setFormSubmitted(true);
       } else {
         const errorText = await response.text();
@@ -89,6 +94,8 @@ const FormPage = () => {
       }
     } catch (error) {
       setErrors([`Failed to submit data: ${error.message}`]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,16 +133,33 @@ const FormPage = () => {
       {formSubmitted && (
         <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
           <div className='rounded-lg bg-white p-6 text-center shadow-lg'>
-            <h2 className='mb-4 text-2xl font-bold'>
-              You just joined the Dinner List
-            </h2>
-            <p>Congratulations. See you there!</p>
-            <button
+            <p className='font-bold'>Submitted Successfully!</p>
+            <p>Scan to join the Whatsapp Group</p>
+            <Image
+              src='/whats.png'
+              alt='QR Code'
+              className='mx-auto mt-2'
+              width={150}
+              height={150}
+            />
+            <p className='mb-4'>
+              or Click{' '}
+              <Link
+                href={'https://chat.whatsapp.com/FJciDmO1McpDdRgA0FS0Up'}
+                className='text-pink-500'
+              >
+                {' '}
+                Here{' '}
+              </Link>{' '}
+            </p>
+
+            <Link
+              href='/'
               className='mt-4 rounded-lg bg-pink-500 px-4 py-2 text-white'
               onClick={() => setFormSubmitted(false)}
             >
               Close
-            </button>
+            </Link>
           </div>
         </div>
       )}
@@ -302,8 +326,35 @@ const FormPage = () => {
           <button
             type='submit'
             className='mt-4 w-full rounded-lg bg-pink-500 px-4 py-2 text-white shadow-md hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50'
+            disabled={loading}
           >
-            Submit
+            {loading ? (
+              <div className='flex items-center justify-center'>
+                <svg
+                  className='h-5 w-5 animate-spin mr-3'
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                >
+                  <circle
+                    className='opacity-25'
+                    cx='12'
+                    cy='12'
+                    r='10'
+                    stroke='currentColor'
+                    strokeWidth='4'
+                  ></circle>
+                  <path
+                    className='opacity-75'
+                    fill='currentColor'
+                    d='M4 12a8 8 0 018-8v8H4z'
+                  ></path>
+                </svg>
+                Processing...
+              </div>
+            ) : (
+              'Submit'
+            )}
           </button>
         </form>
       </div>
